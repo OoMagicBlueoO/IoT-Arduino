@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>IoT</title>
+</head>
+<body>
+<p id="temperatura"> Cargando...</p>
+<button id="escuchar">Escuchar</button>
+<h2 id="status"></h2>
+
+<script>
+  const voz = new webkitSpeechRecognition();
+  const buton= document.getElementById("escuchar")
+    const status= document.getElementById("status")
+    buton.addEventListener("click", correr)
+    voz.lang="es-MX"
+    voz.onresult= mostrar;
+    function correr(eve){
+      voz.start()
+      status.innerHTML="escuchando..."
+
+    }
+    function mostrar(resultados){
+      var mensaje = resultados.results[0][0].transcript;
+      var confianza = parseInt(resultados.results[0][0].confidence * 100)
+      mensaje = mensaje.toLowerCase()
+      status.innerHTML = mensaje+ "-"+confianza+"%";
+      fetch("/mensaje",{
+        method:'post',
+        headers:{
+          'Accept':'application/json, text/plain, */*',
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({mensaje:mensaje})
+      }).then(function()
+    {console.log("MENSAJE ENVIADO")})
+    }
+
+</script>
+</body>
+</html>

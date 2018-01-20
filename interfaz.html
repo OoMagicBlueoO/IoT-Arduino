@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)http://192.168.1.78:8080/iot/control.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<meta name="viewport" content="width=200, initial-scale=2, maximum-scale=2">
+	<title>IoT is very hard</title>
+</head>
+<body cz-shortcut-listen="true">
+<p id="temperatura">Cargando...</p>
+<button id="escuchar">Escuchar</button>
+<h2 id="status"></h2>
+
+<script type="text/javascript">
+const voz = new webkitSpeechRecognition()
+const boton = document.getElementById("escuchar")
+const status = document.getElementById("status")
+
+boton.addEventListener("click", correr)
+
+voz.lang = "es-ES"
+voz.onresult = mostrar;
+
+function correr(eve) {
+	voz.start()
+	status.innerHTML = "Escuchando..."
+}
+
+function mostrar(resultados) {
+	var msj = resultados.results[0][0].transcript;
+	var confianza = parseInt(resultados.results[0][0].confidence * 100)
+	msj = msj.toLowerCase()
+
+	status.innerHTML = msj + " - " + confianza + "%"
+
+	fetch("/mensaje", {
+		method: "post",
+		headers: {
+			'Accept': 'application/json, text/plain, */*',
+    		'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({voz: msj})
+	}).then(
+		function () {
+			console.log("Mensaje enviado")
+		}
+	)
+
+}
+
+</script>
